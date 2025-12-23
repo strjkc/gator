@@ -16,7 +16,7 @@ func Read() (Config, error) {
 		return Config{}, err
 	}
 
-	file, err := os.ReadFile(homeDir + "/gatorconfig.json")
+	file, err := os.ReadFile(homeDir + "/.gatorconfig.json")
 	if err != nil {
 		return Config{}, err
 	}
@@ -39,7 +39,7 @@ func (c Config) SetUser(uname string) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(homeDir+"/gatorconfig.json", data, 0644)
+	err = os.WriteFile(homeDir+"/.gatorconfig.json", data, 0644)
 	if err != nil {
 		return err
 	}
