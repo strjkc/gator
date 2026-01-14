@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"os"
@@ -39,10 +40,23 @@ func registerHandlers(cmds *commands) {
 	cmds.register("reset", handlerClearUsers)
 	cmds.register("users", handlerListUsers)
 	cmds.register("agg", handlerFetch)
-	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	cmds.register("feeds", handlerGetFeeds)
-	cmds.register("follow", handlerFollow)
+	cmds.register("follow", middlewareLoggedIn(handlerFollow))
 	cmds.register("following", handlerFollowing)
+	cmds.register("unfollow", middlewareLoggedIn(handlerUnfollow))
+	cmds.register("browse", middlewareLoggedIn(handlerBrowse))
+}
+
+func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
+	return func(s *state, cmd command) error {
+		currUser := s.conf.User
+		userData, err := s.db.GetUser(context.Background(), currUser)
+		if err != nil {
+			return err
+		}
+		return handler(s, cmd, userData)
+	}
 }
 
 func main() {

@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,7 +24,7 @@ with ins as(
     )
     RETURNING id, created_at, updated_at, user_id, feed_id
 )
-select ff.id, ff.created_at, ff.updated_at, ff.user_id, feed_id, f.id, f.created_at, f.updated_at, f.name, url, f.user_id, u.id, u.created_at, u.updated_at, u.name from ins ff join feeds f on f.id = ff.feed_id
+select ff.id, ff.created_at, ff.updated_at, ff.user_id, feed_id, f.id, f.created_at, f.updated_at, f.name, url, f.user_id, last_fetched_at, u.id, u.created_at, u.updated_at, u.name from ins ff join feeds f on f.id = ff.feed_id
            join users u on ff.user_id = u.id
 `
 
@@ -35,21 +36,22 @@ type CreateFeedFollowParams struct {
 }
 
 type CreateFeedFollowRow struct {
-	ID          int32
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	UserID      uuid.UUID
-	FeedID      uuid.UUID
-	ID_2        uuid.UUID
-	CreatedAt_2 time.Time
-	UpdatedAt_2 time.Time
-	Name        string
-	Url         string
-	UserID_2    uuid.UUID
-	ID_3        uuid.UUID
-	CreatedAt_3 time.Time
-	UpdatedAt_3 time.Time
-	Name_2      string
+	ID            int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	UserID        uuid.UUID
+	FeedID        uuid.UUID
+	ID_2          uuid.UUID
+	CreatedAt_2   time.Time
+	UpdatedAt_2   time.Time
+	Name          string
+	Url           string
+	UserID_2      uuid.UUID
+	LastFetchedAt sql.NullTime
+	ID_3          uuid.UUID
+	CreatedAt_3   time.Time
+	UpdatedAt_3   time.Time
+	Name_2        string
 }
 
 func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowParams) ([]CreateFeedFollowRow, error) {
@@ -78,6 +80,7 @@ func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowPara
 			&i.Name,
 			&i.Url,
 			&i.UserID_2,
+			&i.LastFetchedAt,
 			&i.ID_3,
 			&i.CreatedAt_3,
 			&i.UpdatedAt_3,
