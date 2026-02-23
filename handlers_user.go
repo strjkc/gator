@@ -26,7 +26,6 @@ func handlerListUsers(s *state, cmd command) error {
 		if user == currUser {
 			fmt.Printf("* %s (current)\n", user)
 		} else {
-
 			fmt.Printf("* %s\n", user)
 		}
 	}

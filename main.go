@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
@@ -26,7 +27,10 @@ type commands struct {
 }
 
 func (c *commands) run(s *state, cmd command) error {
-	fun := c.handlers[cmd.name]
+	fun, exists := c.handlers[cmd.name]
+	if !exists {
+		return fmt.Errorf("Command not supported")
+	}
 	return fun(s, cmd)
 }
 
@@ -76,7 +80,15 @@ func main() {
 	cmds := &commands{handlers: make(map[string]func(*state, command) error)}
 	registerHandlers(cmds)
 	args := os.Args[1:]
+	if len(args) < 1 {
+		fmt.Println("Not enoguh arguments, check manual")
+		return
+	}
 	cmdName := args[0]
 	cmdArgs := args[1:]
-	cmds.run(stat, command{name: cmdName, args: cmdArgs})
+	err = cmds.run(stat, command{name: cmdName, args: cmdArgs})
+	if err != nil {
+		fmt.Printf("Something went wrong: %s\n", err)
+		fmt.Println("Check the manual")
+	}
 }

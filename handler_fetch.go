@@ -43,7 +43,8 @@ func handlerFetch(s *state, cmd command) error {
 			params := database.CreatePostParams{ID: uuid.New(), Title: item.Title, Description: sql.NullString{String: item.Description}, Url: item.Link, PublishedAt: sql.NullTime{Time: pubDate}, CreatedAt: time.Now(), UpdatedAt: time.Now(), FeedID: dbFeed.ID}
 			_, err = s.db.CreatePost(context.Background(), params)
 			if err != nil {
-				return err
+				// I'm ignoring this error as there are bound to be duplicate posts
+				continue
 			}
 		}
 	}
